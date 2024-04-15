@@ -1,4 +1,4 @@
-module github.com/kholodmv/otus-home-work/hw01_hello_otus
+module github.com/kholodmv/otus-home-work/hw02_unpack_string
 
 go 1.19
 
