@@ -15,11 +15,12 @@ var (
 
 func Unpack(s string) (string, error) {
 	var unpackStr strings.Builder
+
+	if len(s) > 0 && unicode.IsDigit(rune(s[0])) {
+		return "", ErrInvalidFirstElement
+	}
 	for i := range s {
-		if unicode.IsDigit(rune(s[0])) {
-			return "", ErrInvalidFirstElement
-		}
-		if unicode.IsDigit(rune(s[i])) && unicode.IsDigit(rune(s[i+1])) {
+		if unicode.IsDigit(rune(s[i])) && i+1 < len(s) && unicode.IsDigit(rune(s[i+1])) {
 			return "", ErrInvalidNumberElements
 		}
 
