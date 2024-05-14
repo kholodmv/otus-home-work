@@ -1,8 +1,8 @@
 package hw03frequencyanalysis
 
 import (
-	"fmt"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -18,7 +18,7 @@ func Top10(text string) []string {
 	wordFreqPair := make([][2]string, 0, len(wordCountFreq))
 
 	for word, freq := range wordCountFreq {
-		wordFreqPair = append(wordFreqPair, [2]string{word, fmt.Sprintf("%d", freq)})
+		wordFreqPair = append(wordFreqPair, [2]string{word, strconv.FormatInt(int64(freq), 10)})
 	}
 
 	sort.Slice(wordFreqPair, func(i, j int) bool {
