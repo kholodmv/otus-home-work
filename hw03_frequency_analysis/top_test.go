@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -79,4 +80,42 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+}
+
+func TestTop10DiffCases(t *testing.T) {
+	tests := []struct {
+		name     string
+		text     string
+		expected []string
+	}{
+		{
+			name:     "empty text",
+			text:     "",
+			expected: []string{},
+		},
+		{
+			name:     "single word",
+			text:     "hello",
+			expected: []string{"hello"},
+		},
+		{
+			name:     "multiple words",
+			text:     "hello world hello world",
+			expected: []string{"hello", "world"},
+		},
+		{
+			name:     "large text",
+			text:     "hello world hello meow hello arrrr world",
+			expected: []string{"hello", "world", "arrrr", "meow"},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := Top10(test.text)
+			if !reflect.DeepEqual(result, test.expected) {
+				t.Errorf("Test case %s failed. Expected: %v, got: %v", test.name, test.expected, result)
+			}
+		})
+	}
 }
