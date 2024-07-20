@@ -19,7 +19,7 @@ func NewCache(capacity int) Cache {
 	return &lruCache{
 		capacity: capacity,
 		queue:    NewList(),                         // Initialize an empty doubly linked List.
-		items:    make(map[Key]*ListItem, capacity), // Initialize an empty dictionary to store keys and references to List elements.
+		items:    make(map[Key]*ListItem, capacity), // Initialize an empty dictionary.
 	}
 }
 
