@@ -49,3 +49,58 @@ func TestList(t *testing.T) {
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
 }
+
+func TestRemove(t *testing.T) {
+	l := &list{}
+	item1 := &ListItem{Value: "first element"}
+	item2 := &ListItem{Value: "second element"}
+	item3 := &ListItem{Value: "third element"}
+
+	l.front = item1
+	l.back = item3
+	l.len = 3
+
+	item1.Next = item2
+	item2.Prev = item1
+	item2.Next = item3
+	item3.Prev = item2
+
+	l.Remove(item2)
+	if l.len != 2 {
+		t.Errorf("expected length 2, got %d", l.len)
+	}
+
+	if item1.Next != item3 {
+		t.Errorf("first element's Next should be third element")
+	}
+
+	if item3.Prev != item1 {
+		t.Errorf("third element's Prev should be first element")
+	}
+
+	l.Remove(item1)
+	if l.len != 1 {
+		t.Errorf("expected length 1, got %d", l.len)
+	}
+
+	if l.front != item3 {
+		t.Errorf("front should be third element")
+	}
+
+	if item3.Prev != nil {
+		t.Errorf("third element's Prev should be nil")
+	}
+
+	l.Remove(item3)
+	if l.len != 0 {
+		t.Errorf("expected length 0, got %d", l.len)
+	}
+
+	if l.front != nil {
+		t.Errorf("front should be nil")
+	}
+
+	if l.back != nil {
+		t.Errorf("back should be nil")
+	}
+}

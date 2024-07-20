@@ -77,3 +77,28 @@ func TestCacheMultithreading(t *testing.T) {
 
 	wg.Wait()
 }
+
+func TestClear(t *testing.T) {
+	c := &lruCache{
+		queue:    NewList(),
+		items:    make(map[Key]*ListItem),
+		capacity: 5,
+	}
+
+	c.items["key1"] = &ListItem{Value: "item1"}
+	c.items["key2"] = &ListItem{Value: "item2"}
+
+	if len(c.items) == 0 {
+		t.Fatal("Cache is empty before Clear is called")
+	}
+
+	c.Clear()
+
+	if len(c.items) != 0 {
+		t.Error("Cache was not cleared, items should be empty")
+	}
+
+	if c.queue == nil {
+		t.Error("Cache queue was not reset")
+	}
+}
