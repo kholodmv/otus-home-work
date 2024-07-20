@@ -10,7 +10,7 @@ type Cache interface {
 
 type lruCache struct {
 	capacity int
-	queue    List
+	queue    IList
 	items    map[Key]*ListItem
 }
 
@@ -18,8 +18,8 @@ type lruCache struct {
 func NewCache(capacity int) Cache {
 	return &lruCache{
 		capacity: capacity,
-		queue:    NewList(),                         // Initialize an empty doubly linked list.
-		items:    make(map[Key]*ListItem, capacity), // Initialize an empty dictionary to store keys and references to list elements.
+		queue:    NewList(),                         // Initialize an empty doubly linked List.
+		items:    make(map[Key]*ListItem, capacity), // Initialize an empty dictionary to store keys and references to List elements.
 	}
 }
 
