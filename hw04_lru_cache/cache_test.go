@@ -102,3 +102,67 @@ func TestClear(t *testing.T) {
 		t.Error("Cache queue was not reset")
 	}
 }
+
+func TestLRUCache_Capacity(t *testing.T) {
+	capacity := 3
+	c := NewCache(capacity)
+
+	c.Set("key1", 1)
+	c.Set("key2", 2)
+	c.Set("key3", 3)
+	c.Set("key4", 4)
+
+	_, exists := c.Get("key1")
+	if exists {
+		t.Errorf("Expected key1 to be evicted, but it still exists")
+	}
+
+	_, exists = c.Get("key2")
+	if !exists {
+		t.Errorf("Expected key2 to exist, but it's missing")
+	}
+
+	_, exists = c.Get("key3")
+	if !exists {
+		t.Errorf("Expected key3 to exist, but it's missing")
+	}
+
+	_, exists = c.Get("key4")
+	if !exists {
+		t.Errorf("Expected key4 to exist, but it's missing")
+	}
+}
+
+func TestLRUCache_LRU(t *testing.T) {
+	capacity := 3
+	cache := NewCache(capacity)
+
+	cache.Set("key1", "value1")
+	cache.Set("key2", "value2")
+	cache.Set("key3", "value3")
+
+	cache.Get("key2")
+	cache.Get("key1")
+	cache.Get("key3")
+	cache.Set("key4", "value4")
+
+	_, exists := cache.Get("key2")
+	if exists {
+		t.Errorf("Expected key2 to be evicted, but it still exists")
+	}
+
+	_, exists = cache.Get("key1")
+	if !exists {
+		t.Errorf("Expected key1 to exist, but it's missing")
+	}
+
+	_, exists = cache.Get("key3")
+	if !exists {
+		t.Errorf("Expected key3 to exist, but it's missing")
+	}
+
+	_, exists = cache.Get("key4")
+	if !exists {
+		t.Errorf("Expected key4 to exist, but it's missing")
+	}
+}

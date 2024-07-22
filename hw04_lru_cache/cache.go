@@ -3,23 +3,31 @@ package hw04lrucache
 type Key string
 
 type Cache interface {
-	Set(key Key, value interface{}) bool // Add a value to the cache by key
-	Get(key Key) (interface{}, bool)     // Get value from cache by key
-	Clear()                              // Clear cache
+	// Set adds a value to the cache by key.
+	Set(key Key, value interface{}) bool
+	// Get returns value from cache by key.
+	Get(key Key) (interface{}, bool)
+	// Clear clears cache.
+	Clear()
 }
 
 type lruCache struct {
 	capacity int
-	queue    IList
+	queue    List
 	items    map[Key]*ListItem
+}
+
+type cacheItem struct {
+	key   Key
+	value interface{}
 }
 
 // NewCache creates a new LRU Cache with the specified capacity.
 func NewCache(capacity int) Cache {
 	return &lruCache{
 		capacity: capacity,
-		queue:    NewList(),                         // Initialize an empty doubly linked List.
-		items:    make(map[Key]*ListItem, capacity), // Initialize an empty dictionary.
+		queue:    NewList(),
+		items:    make(map[Key]*ListItem, capacity),
 	}
 }
 
@@ -27,20 +35,18 @@ func NewCache(capacity int) Cache {
 func (c *lruCache) Set(key Key, value interface{}) bool {
 	if item, exists := c.items[key]; exists {
 		c.queue.MoveToFront(item)
-		item.Value = value
+		item.Value = &ListItem{Value: cacheItem{key: key, value: value}}
 		return true
 	}
 
-	newItem := c.queue.PushFront(value)
+	newItem := c.queue.PushFront(&ListItem{Value: cacheItem{key: key, value: value}})
 	c.items[key] = newItem
 
 	if c.queue.Len() > c.capacity {
-		lastItem := c.queue.Back()
-		if lastItem != nil {
-			delete(c.items, lastItem.Value.(Key))
-			c.queue.Remove(lastItem)
-		}
+		delete(c.items, c.queue.Back().Value.(*ListItem).Value.(cacheItem).key)
+		c.queue.Remove(c.queue.Back())
 	}
+
 	return false
 }
 
@@ -48,7 +54,8 @@ func (c *lruCache) Set(key Key, value interface{}) bool {
 func (c *lruCache) Get(key Key) (interface{}, bool) {
 	if item, exists := c.items[key]; exists {
 		c.queue.MoveToFront(item)
-		return item.Value, true
+
+		return item.Value.(*ListItem).Value.(cacheItem).value, true
 	}
 	return nil, false
 }

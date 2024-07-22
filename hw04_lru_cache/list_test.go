@@ -7,7 +7,7 @@ import (
 )
 
 func TestList(t *testing.T) {
-	t.Run("empty List", func(t *testing.T) {
+	t.Run("empty list", func(t *testing.T) {
 		l := NewList()
 
 		require.Equal(t, 0, l.Len())
@@ -51,7 +51,7 @@ func TestList(t *testing.T) {
 }
 
 func TestRemove(t *testing.T) {
-	l := &List{}
+	l := &list{}
 	item1 := &ListItem{Value: "first element"}
 	item2 := &ListItem{Value: "second element"}
 	item3 := &ListItem{Value: "third element"}
