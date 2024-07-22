@@ -31,7 +31,7 @@ type list struct {
 }
 
 // NewList creates a new empty list.
-func NewList() *list {
+func NewList() List {
 	return &list{}
 }
 
