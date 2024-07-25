@@ -67,4 +67,29 @@ func TestRun(t *testing.T) {
 		require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
 		require.LessOrEqual(t, int64(elapsedTime), int64(sumTime/2), "tasks were run sequentially?")
 	})
+
+	t.Run("if no goroutines", func(t *testing.T) {
+		tasks := []Task{
+			func() error { return nil },
+			func() error { return nil },
+			func() error { return nil },
+		}
+		err := Run(tasks, 0, 1)
+		if err != nil {
+			require.NoError(t, err)
+		}
+	})
+
+	t.Run("if error limit exceeded", func(t *testing.T) {
+		tasks := []Task{
+			func() error { return errors.New("error") },
+			func() error { return nil },
+			func() error { return errors.New("error") },
+		}
+
+		err := Run(tasks, 3, 1)
+		if !errors.Is(err, ErrErrorsLimitExceeded) {
+			require.Equal(t, ErrErrorsLimitExceeded, err)
+		}
+	})
 }
