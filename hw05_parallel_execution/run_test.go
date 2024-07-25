@@ -78,18 +78,16 @@ func TestRun(t *testing.T) {
 		if err != nil {
 			require.NoError(t, err)
 		}
-	})
 
-	t.Run("if error limit exceeded", func(t *testing.T) {
-		tasks := []Task{
-			func() error { return errors.New("error") },
-			func() error { return nil },
-			func() error { return errors.New("error") },
-		}
+		t.Run("if error limit exceeded", func(t *testing.T) {
+			tasks := []Task{
+				func() error { return errors.New("error") },
+				func() error { return nil },
+				func() error { return errors.New("error") },
+			}
 
-		err := Run(tasks, 3, 1)
-		if !errors.Is(err, ErrErrorsLimitExceeded) {
-			require.Equal(t, ErrErrorsLimitExceeded, err)
-		}
+			err := Run(tasks, 3, 1)
+			require.True(t, errors.Is(err, ErrErrorsLimitExceeded), "expected ErrErrorsLimitExceeded but got %v", err)
+		})
 	})
 }

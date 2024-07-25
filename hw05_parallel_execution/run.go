@@ -19,24 +19,27 @@ func Run(tasks []Task, n, m int) error {
 	var mu sync.Mutex
 
 	taskChan := make(chan Task, len(tasks))
-	errorCount := 0
+	errorChan := make(chan struct{}, m)
 
-	for _, task := range tasks {
-		taskChan <- task
-	}
-	close(taskChan)
+	var errorCount int32
 
 	for i := 0; i < n; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
 			for task := range taskChan {
+				if errorCount >= int32(m) {
+					return
+				}
+
 				err := task()
 				if err != nil {
 					mu.Lock()
 					errorCount++
 					mu.Unlock()
-					if errorCount >= m {
+
+					if errorCount >= int32(m) {
+						errorChan <- struct{}{}
 						return
 					}
 				}
@@ -44,9 +47,19 @@ func Run(tasks []Task, n, m int) error {
 		}()
 	}
 
+	go func() {
+		defer close(taskChan)
+		for _, task := range tasks {
+			if errorCount >= int32(m) {
+				return
+			}
+			taskChan <- task
+		}
+	}()
+
 	wg.Wait()
 
-	if errorCount >= m {
+	if errorCount >= int32(m) {
 		return ErrErrorsLimitExceeded
 	}
 
