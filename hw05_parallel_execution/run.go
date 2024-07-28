@@ -12,6 +12,10 @@ type Task func() error
 
 // Run starts tasks in n goroutines and stops its work when receiving m errors from tasks.
 func Run(tasks []Task, n, m int) error {
+	if n <= 0 {
+		return errors.New("n must be > 0")
+	}
+
 	if m <= 0 {
 		return ErrErrorsLimitExceeded
 	}
@@ -19,8 +23,6 @@ func Run(tasks []Task, n, m int) error {
 	var wg sync.WaitGroup
 
 	taskChan := make(chan Task, len(tasks))
-	errorChan := make(chan struct{}, m)
-
 	var errorCount int32
 
 	for i := 0; i < n; i++ {
@@ -36,7 +38,6 @@ func Run(tasks []Task, n, m int) error {
 				if err != nil {
 					atomic.AddInt32(&errorCount, 1)
 					if atomic.LoadInt32(&errorCount) >= int32(m) {
-						errorChan <- struct{}{}
 						return
 					}
 				}
@@ -44,16 +45,14 @@ func Run(tasks []Task, n, m int) error {
 		}()
 	}
 
-	go func() {
-		defer close(taskChan)
-		for _, task := range tasks {
-			if atomic.LoadInt32(&errorCount) >= int32(m) {
-				return
-			}
-			taskChan <- task
+	for _, task := range tasks {
+		if atomic.LoadInt32(&errorCount) >= int32(m) {
+			return ErrErrorsLimitExceeded
 		}
-	}()
+		taskChan <- task
+	}
 
+	close(taskChan)
 	wg.Wait()
 
 	if atomic.LoadInt32(&errorCount) >= int32(m) {

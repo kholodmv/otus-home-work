@@ -76,7 +76,8 @@ func TestRun(t *testing.T) {
 		}
 		err := Run(tasks, 0, 1)
 		if err != nil {
-			require.NoError(t, err)
+			require.Error(t, err)
+			require.EqualError(t, err, "n must be > 0")
 		}
 	})
 
