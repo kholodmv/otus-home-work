@@ -90,4 +90,35 @@ func TestPipeline(t *testing.T) {
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
+
+	t.Run("empty pipeline", func(t *testing.T) {
+		in := make(Bi)
+		terminate := make(In)
+
+		out := ExecutePipeline(in, terminate)
+
+		go func() {
+			defer close(in)
+			for i := 0; i < 5; i++ {
+				in <- i
+			}
+		}()
+
+		expected := []int{0, 1, 2, 3, 4}
+		for _, exp := range expected {
+			select {
+			case result := <-out:
+				require.Equal(t, exp, result, "they should be equal")
+			case <-time.After(1 * time.Second):
+				require.FailNow(t, "timeout waiting for result")
+			}
+		}
+
+		select {
+		case _, open := <-out:
+			require.False(t, open, "expected output channel to be closed")
+		case <-time.After(1 * time.Second):
+			require.FailNow(t, "timeout waiting for output channel to close")
+		}
+	})
 }
