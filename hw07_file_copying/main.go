@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 )
 
 var (
@@ -18,5 +19,14 @@ func init() {
 
 func main() {
 	flag.Parse()
-	// Place your code here.
+
+	if from == "" || to == "" {
+		fmt.Println("Flags from and -to must not be empty")
+		return
+	}
+
+	err := Copy(from, to, offset, limit)
+	if err != nil {
+		fmt.Printf("Error copying file: %v\n", err)
+	}
 }
