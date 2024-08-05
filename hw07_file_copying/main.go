@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"path/filepath"
 )
 
 var (
@@ -21,11 +22,27 @@ func main() {
 	flag.Parse()
 
 	if from == "" || to == "" {
-		fmt.Println("Flags from and -to must not be empty")
+		fmt.Println("Flags -from and -to must not be empty")
 		return
 	}
 
-	err := Copy(from, to, offset, limit)
+	fromAbs, err := filepath.Abs(from)
+	if err != nil {
+		fmt.Println("Error resolving -from path:", err)
+		return
+	}
+	toAbs, err := filepath.Abs(to)
+	if err != nil {
+		fmt.Println("Error resolving -to path:", err)
+		return
+	}
+
+	if fromAbs == toAbs {
+		fmt.Println("Flags -from and -to must not be equal")
+		return
+	}
+
+	err = Copy(from, to, offset, limit)
 	if err != nil {
 		fmt.Printf("Error copying file: %v\n", err)
 	}
