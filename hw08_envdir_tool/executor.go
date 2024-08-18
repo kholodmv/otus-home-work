@@ -12,6 +12,7 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 		return 1
 	}
 
+	// #nosec G204
 	command := exec.Command(cmd[0], cmd[1:]...)
 	command.Env = os.Environ()
 	for k, v := range env {
