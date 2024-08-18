@@ -14,15 +14,15 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 
 	// #nosec G204
 	command := exec.Command(cmd[0], cmd[1:]...)
-	command.Env = os.Environ()
 	for k, v := range env {
 		if v.NeedRemove {
 			os.Unsetenv(k)
 		} else {
-			command.Env = append(command.Env, k+"="+v.Value)
+			os.Setenv(k, v.Value)
 		}
 	}
 
+	command.Env = os.Environ()
 	command.Stdin = os.Stdin
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr

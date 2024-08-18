@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"os"
 	"path/filepath"
@@ -37,14 +38,36 @@ func ReadDir(dir string) (Environment, error) {
 		}
 
 		if len(content) == 0 {
-			env[f.Name()] = EnvValue{NeedRemove: true}
+			env[f.Name()] = EnvValue{Value: "", NeedRemove: true}
 		} else {
-			value := string(content)
-			value = strings.TrimRight(value, " \t")
-			value = string(bytes.ReplaceAll([]byte(value), []byte{0}, []byte{'\n'}))
+			value, err := getValueFromFile(filepath.Join(dir, f.Name()))
+			if err != nil {
+				return nil, err
+			}
 			env[f.Name()] = EnvValue{Value: value, NeedRemove: false}
 		}
 	}
 
 	return env, nil
+}
+
+func getValueFromFile(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	scanner.Scan()
+	v := scanner.Bytes()
+	v = bytes.ReplaceAll(v, []byte("\x00"), []byte("\n"))
+	value := strings.TrimRight(string(v), " \t\n")
+
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	return value, nil
 }
