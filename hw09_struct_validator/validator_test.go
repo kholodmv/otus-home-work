@@ -131,7 +131,7 @@ func TestValidate(t *testing.T) {
 			}
 
 			var validationErrors ValidationErrors
-			var expectedErrors ValidationErrors // Объявлена за пределами `if`
+			var expectedErrors ValidationErrors
 
 			if errors.As(err, &validationErrors) {
 				if errors.As(tt.expectedErr, &expectedErrors) {
