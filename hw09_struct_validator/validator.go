@@ -81,6 +81,7 @@ func validateField(fieldName string, fieldValue reflect.Value, tag string) Valid
 		validatorValue := parts[1]
 
 		var err error
+		//nolint:exhaustive
 		switch fieldValue.Kind() {
 		case reflect.Int:
 			err = validateInt(fieldValue.Int(), validatorName, validatorValue)
@@ -168,6 +169,7 @@ func validateSlice(value reflect.Value, validatorName, validatorValue string) er
 	for i := 0; i < value.Len(); i++ {
 		elem := value.Index(i)
 		var err error
+		//nolint:exhaustive
 		switch elem.Kind() {
 		case reflect.Int:
 			err = validateInt(elem.Int(), validatorName, validatorValue)

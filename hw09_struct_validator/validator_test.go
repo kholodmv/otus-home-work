@@ -131,13 +131,18 @@ func TestValidate(t *testing.T) {
 			}
 
 			var validationErrors ValidationErrors
-			if errors.As(err, &validationErrors) {
-				expectedErrors := tt.expectedErr.(ValidationErrors)
-				require.Equal(t, len(expectedErrors), len(validationErrors), "Number of errors mismatch")
+			var expectedErrors ValidationErrors // Объявлена за пределами `if`
 
-				for i, expectedErr := range expectedErrors {
-					require.Equal(t, expectedErr.Field, validationErrors[i].Field, "Field mismatch")
-					require.Equal(t, expectedErr.Err.Error(), validationErrors[i].Err.Error(), "Error message mismatch")
+			if errors.As(err, &validationErrors) {
+				if errors.As(tt.expectedErr, &expectedErrors) {
+					require.Equal(t, len(expectedErrors), len(validationErrors), "Number of errors mismatch")
+
+					for i, expectedErr := range expectedErrors {
+						require.Equal(t, expectedErr.Field, validationErrors[i].Field, "Field mismatch")
+						require.Equal(t, expectedErr.Err.Error(), validationErrors[i].Err.Error(), "Error message mismatch")
+					}
+				} else {
+					require.ErrorIs(t, err, tt.expectedErr, "Error type mismatch")
 				}
 			} else {
 				require.ErrorIs(t, err, tt.expectedErr, "Error type mismatch")
