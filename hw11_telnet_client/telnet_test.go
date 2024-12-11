@@ -30,7 +30,7 @@ func TestTelnetClient(t *testing.T) {
 			require.NoError(t, err)
 
 			client, err := NewTelnetClient(l.Addr().String(), timeout, io.NopCloser(in), out)
-			defer func() { require.NoError(t, client.Close()) }()
+			defer func() { require.NoError(t, err) }()
 
 			in.WriteString("hello\n")
 			err = client.Send()

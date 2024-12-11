@@ -19,7 +19,7 @@ func main() {
 	address := fmt.Sprintf("%s:%s", flag.Args()[0], flag.Args()[1])
 	client, err := NewTelnetClient(address, *timeout, os.Stdin, os.Stderr)
 	if err != nil {
-		log.Fatalf("Error connecting to %s: %v\n", address, err)
+		log.Printf("Error connecting to %s: %v\n", address, err)
 		os.Exit(1)
 	}
 	defer client.Close()
@@ -28,29 +28,29 @@ func main() {
 	signal.Notify(sigs, syscall.SIGINT)
 	go func() {
 		<-sigs
-		log.Fatalf("Received SIGINT, closing connection...")
+		log.Printf("Received SIGINT, closing connection...")
 		client.Close()
 		os.Exit(0)
 	}()
 
-	fmt.Fprintf(os.Stderr, "...Connected to %s\n", address)
+	log.Printf("...Connected to %s\n", address)
 
 	go func() {
 		if err := client.Receive(); err != nil && !client.closed {
-			log.Fatalf("...Connection was closed by peer")
+			log.Printf("...Connection was closed by peer")
 			client.Close()
-			os.Exit(0)
+			return
 		}
 	}()
 
 	if err := client.Send(); err != nil && !client.closed {
-		log.Fatalf("...Error sending to server: %v\n", err)
+		log.Printf("...Error sending to server: %v\n", err)
 		client.Close()
-		os.Exit(0)
+		return
 	}
 
 	if client.closed {
-		log.Fatalf("...EOF")
-		os.Exit(0)
+		log.Printf("...EOF")
+		return
 	}
 }
